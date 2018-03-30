@@ -1,0 +1,49 @@
+$ docker version
+Client:
+ Version:       0.0.0-dev
+ API version:   1.37
+ Go version:    go1.9.4
+ Git commit:    0c75f522
+ Built: Tue Mar  6 23:39:02 2018
+ OS/Arch:       windows/amd64
+ Experimental:  false
+ Orchestrator:  swarm
+
+Server:
+ Engine:
+  Version:      0.0.0-dev
+  API version:  1.37 (minimum version 1.24)
+  Go version:   go1.9.4
+  Git commit:   f3a3778
+  Built:        Tue Mar  6 23:46:23 2018
+  OS/Arch:      windows/amd64
+  Experimental: true
+
+$ docker container run `
+>> --isolation process `
+>> --name engine-example `
+>> --rm `
+>> --volume '\\.\pipe\docker_engine:\\.\pipe\docker_engine' `
+>> --volume 'C:\Program Files\Docker:C:\Docker' `
+>> microsoft/windowsservercore:1709 `
+>> powershell -Command `
+>> "(`"C:\Docker\docker.exe`" container inspect engine-example | " `
+>> "ConvertFrom-Json).Mounts | select Source, Destination"
+
+Source                  Destination
+------                  -----------
+c:\program files\docker c:\docker
+\\.\pipe\docker_engine  \\.\pipe\docker_engine
+
+
+$ docker container run `
+>> --isolation hyperv `
+>> --name engine-example `
+>> --rm `
+>> --volume '\\.\pipe\docker_engine:\\.\pipe\docker_engine' `
+>> --volume 'C:\Program Files\Docker:C:\Docker' `
+>> microsoft/windowsservercore:1709 `
+>> powershell -Command `
+>> "(`"C:\Docker\docker.exe`" container inspect engine-example | " `
+>> "ConvertFrom-Json).Mounts | select Source, Destination"
+error during connect: Get http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.37/containers/engine-example/json: open //./pipe/docker_engine: message readmode pipes not supported In the default daemon configuration on Windows, the docker client must be run elevated to connect. This error may also indicate that the docker daemon is not running.
